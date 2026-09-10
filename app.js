@@ -421,7 +421,6 @@ const ADD_CONTENT_ERRORS = {
   unauthorized: 'Tu sesión ha caducado. Vuelve a iniciar sesión.',
   premium_required: 'Esta función requiere Premium, igual que en la app.',
   subject_not_found: 'No se encontró la asignatura.',
-  generation_in_progress: 'La asignatura todavía está generando lecciones. Espera un poco y vuelve a intentarlo.',
   plan_fully_generated: 'Ya se generaron todos los días de este plan; no se puede añadir más contenido sin estudiar primero para liberar días.',
   content_too_large_for_remaining_days: 'Hay demasiado contenido para los días que quedan sin generar. Prueba con menos archivos, o espera a tener más días libres.',
   plan_changed_retry: 'La asignatura cambió mientras se procesaba. Vuelve a intentarlo.',
