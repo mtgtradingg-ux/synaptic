@@ -308,7 +308,28 @@ document.getElementById('create-form').addEventListener('submit', async (e) => {
       return;
     }
 
-    setStatus('create-status', 'Asignatura creada. Las lecciones se generarán en unos minutos, igual que en la app.', 'ok');
+    // Igual que hace la app justo tras crear una asignatura (Fase 1, ver
+    // LessonProvider.generateAndSaveLessons): generar el primer día (o dos)
+    // ya mismo, para que al abrir la app no se vea como "vacía, añade
+    // documentos" mientras el cron de fondo arranca por su cuenta.
+    setStatus('create-status', 'Generando los primeros días…', null);
+    try {
+      const { generatedDays, quotaExceeded } = await generateInitialDays(
+        data.id, text, plan.days,
+        (done, total) => setStatus('create-status', `Generando los primeros días… (${done}/${total})`, null),
+      );
+      if (quotaExceeded) {
+        setStatus('create-status', 'Asignatura creada. Se ha alcanzado el límite de generación por ahora; el resto se irá completando más adelante.', 'ok');
+      } else if (generatedDays === 0) {
+        setStatus('create-status', 'Asignatura creada. Empezará a generarse en unos minutos, igual que en la app.', 'ok');
+      } else {
+        setStatus('create-status', 'Asignatura creada y lista para abrir en la app.', 'ok');
+      }
+    } catch (genErr) {
+      console.error('Error generando los primeros días:', genErr);
+      setStatus('create-status', 'Asignatura creada. Empezará a generarse en unos minutos, igual que en la app.', 'ok');
+    }
+
     await loadSubjects();
     setTimeout(() => showView('view-dashboard'), 1200);
   } catch (err) {
