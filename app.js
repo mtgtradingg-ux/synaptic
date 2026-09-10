@@ -47,6 +47,66 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
   await refreshSession();
 });
 
+// Pestañas "Email y contraseña" / "Tengo un código" — solo cambian qué
+// formulario de login se ve, ambos viven en la misma vista.
+document.querySelectorAll('[data-login-tab]').forEach((tab) => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('[data-login-tab]').forEach((t) => t.classList.remove('selected'));
+    tab.classList.add('selected');
+    const mode = tab.dataset.loginTab;
+    document.querySelectorAll('.login-mode').forEach((form) => {
+      form.hidden = form.dataset.mode !== mode;
+    });
+  });
+});
+
+const CODE_LOGIN_ERRORS = {
+  missing_code: 'Escribe un código.',
+  invalid_code: 'Código incorrecto.',
+  code_expired: 'Este código ha caducado. Genera uno nuevo desde la app.',
+  code_already_used: 'Este código ya se usó. Genera uno nuevo desde la app.',
+  user_not_found: 'No se encontró la cuenta de ese código.',
+  no_email_on_account: 'Tu cuenta no tiene un email asociado; contacta con soporte.',
+  exchange_failed: 'No se pudo iniciar sesión con ese código.',
+};
+
+document.getElementById('code-login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const code = document.getElementById('login-code').value.trim().toUpperCase();
+  const errorEl = document.getElementById('code-login-error');
+  errorEl.hidden = true;
+
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/functions/v1/exchange-web-login-code`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
+      body: JSON.stringify({ code }),
+    });
+    const body = await resp.json();
+
+    if (!resp.ok) {
+      errorEl.textContent = CODE_LOGIN_ERRORS[body.error] || 'No se pudo iniciar sesión con ese código.';
+      errorEl.hidden = false;
+      return;
+    }
+
+    const { error } = await sb.auth.setSession({
+      access_token: body.access_token,
+      refresh_token: body.refresh_token,
+    });
+    if (error) {
+      errorEl.textContent = 'No se pudo iniciar sesión: ' + error.message;
+      errorEl.hidden = false;
+      return;
+    }
+    await refreshSession();
+  } catch (err) {
+    console.error(err);
+    errorEl.textContent = 'Error de red al canjear el código.';
+    errorEl.hidden = false;
+  }
+});
+
 document.getElementById('logout-btn').addEventListener('click', async () => {
   await sb.auth.signOut();
   await refreshSession();

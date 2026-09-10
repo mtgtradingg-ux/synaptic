@@ -121,6 +121,32 @@ input, select {
 
 .back-btn { margin-bottom: 4px; }
 
+.tab-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.tab.selected {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
 .error {
   background: var(--error-bg);
   color: var(--error);

@@ -19,20 +19,47 @@
 
     <!-- LOGIN -->
     <section id="view-login" class="view">
-      <form id="login-form" class="card form">
-        <h1>Iniciar sesión</h1>
-        <p class="muted">Usa la misma cuenta que en la app.</p>
-        <label>
-          Email
-          <input type="email" id="login-email" required autocomplete="email" />
-        </label>
-        <label>
-          Contraseña
-          <input type="password" id="login-password" required autocomplete="current-password" />
-        </label>
-        <button type="submit" class="btn btn-primary">Entrar</button>
-        <p id="login-error" class="error" hidden></p>
-      </form>
+      <div class="card">
+        <div class="tab-row">
+          <button type="button" class="tab selected" data-login-tab="password">Email y contraseña</button>
+          <button type="button" class="tab" data-login-tab="code">Tengo un código</button>
+        </div>
+
+        <form id="login-form" class="form login-mode" data-mode="password">
+          <p class="muted">Usa la misma cuenta que en la app.</p>
+          <label>
+            Email
+            <input type="email" id="login-email" required autocomplete="email" />
+          </label>
+          <label>
+            Contraseña
+            <input type="password" id="login-password" required autocomplete="current-password" />
+          </label>
+          <button type="submit" class="btn btn-primary">Entrar</button>
+          <p id="login-error" class="error" hidden></p>
+        </form>
+
+        <form id="code-login-form" class="form login-mode" data-mode="code" hidden>
+          <p class="muted">
+            Genera un código desde Ajustes → Vincular con la web en la app y escríbelo aquí.
+            Vale 10 minutos y se puede usar una sola vez.
+          </p>
+          <label>
+            Código
+            <input
+              type="text"
+              id="login-code"
+              required
+              maxlength="8"
+              autocomplete="one-time-code"
+              placeholder="ABCD1234"
+              style="text-transform:uppercase; letter-spacing:2px; font-weight:700;"
+            />
+          </label>
+          <button type="submit" class="btn btn-primary">Entrar con código</button>
+          <p id="code-login-error" class="error" hidden></p>
+        </form>
+      </div>
     </section>
 
     <!-- DASHBOARD -->
