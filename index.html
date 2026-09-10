@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>estudio — subir apuntes</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span data-lucide="book-open"></span>
+      <span>estudio</span>
+    </div>
+    <button id="logout-btn" class="btn btn-ghost" hidden>Cerrar sesión</button>
+  </header>
+
+  <main id="app">
+
+    <!-- LOGIN -->
+    <section id="view-login" class="view">
+      <form id="login-form" class="card form">
+        <h1>Iniciar sesión</h1>
+        <p class="muted">Usa la misma cuenta que en la app.</p>
+        <label>
+          Email
+          <input type="email" id="login-email" required autocomplete="email" />
+        </label>
+        <label>
+          Contraseña
+          <input type="password" id="login-password" required autocomplete="current-password" />
+        </label>
+        <button type="submit" class="btn btn-primary">Entrar</button>
+        <p id="login-error" class="error" hidden></p>
+      </form>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section id="view-dashboard" class="view">
+      <div class="view-header">
+        <h1>Tus asignaturas</h1>
+        <button id="new-subject-btn" class="btn btn-primary">
+          <span data-lucide="plus"></span> Nueva asignatura
+        </button>
+      </div>
+      <p id="dashboard-empty" class="muted" hidden>Todavía no tienes asignaturas.</p>
+      <ul id="subject-list" class="subject-list"></ul>
+    </section>
+
+    <!-- CREAR ASIGNATURA -->
+    <section id="view-create" class="view">
+      <div class="view-header">
+        <button class="btn btn-ghost back-btn" data-back="view-dashboard">
+          <span data-lucide="arrow-left"></span> Volver
+        </button>
+      </div>
+      <form id="create-form" class="card form">
+        <h1>Nueva asignatura</h1>
+
+        <label>
+          Nombre
+          <input type="text" id="create-name" required maxlength="120" />
+        </label>
+
+        <div class="field">
+          <span class="field-label">Color</span>
+          <div id="color-picker" class="swatch-grid"></div>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Icono</span>
+          <div id="icon-picker" class="icon-grid"></div>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Duración del plan</span>
+          <div id="plan-picker" class="chip-row"></div>
+          <p id="plan-extended-note" class="muted small" hidden>
+            Se irá ampliando sola más adelante, como en la app.
+          </p>
+        </div>
+
+        <label>
+          Idioma
+          <select id="create-language">
+            <option value="">Idioma del archivo (detectado automáticamente)</option>
+          </select>
+        </label>
+
+        <div class="field">
+          <span class="field-label">Apuntes (PDF o TXT)</span>
+          <input type="file" id="create-files" accept=".pdf,.txt" multiple required />
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="create-submit">Crear asignatura</button>
+        <p id="create-status" class="status" hidden></p>
+      </form>
+    </section>
+
+    <!-- AÑADIR CONTENIDO -->
+    <section id="view-add-content" class="view">
+      <div class="view-header">
+        <button class="btn btn-ghost back-btn" data-back="view-dashboard">
+          <span data-lucide="arrow-left"></span> Volver
+        </button>
+      </div>
+      <form id="add-content-form" class="card form">
+        <h1>Añadir apuntes</h1>
+        <p class="muted" id="add-content-subject-name"></p>
+        <p class="muted small">Función Premium — igual que en la app.</p>
+
+        <label>
+          Días a añadir
+          <input type="number" id="add-content-days" min="1" max="90" value="30" required />
+        </label>
+
+        <div class="field">
+          <span class="field-label">Apuntes nuevos (PDF o TXT)</span>
+          <input type="file" id="add-content-files" accept=".pdf,.txt" multiple required />
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="add-content-submit">Añadir contenido</button>
+        <p id="add-content-status" class="status" hidden></p>
+      </form>
+    </section>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.294.0/dist/umd/lucide.js"></script>
+  <script src="config.js"></script>
+  <script src="constants.js"></script>
+  <script src="pdf-extract.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
