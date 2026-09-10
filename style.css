@@ -147,6 +147,35 @@ input, select {
   border-bottom-color: var(--primary);
 }
 
+/* .form fija display:flex, que por especificidad de origen le gana al
+   display:none del atributo [hidden] del navegador — sin esto, ocultar un
+   .login-mode con `hidden` no hacía nada y se veían los dos formularios de
+   login a la vez. */
+.login-mode[hidden] {
+  display: none;
+}
+
+.file-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.file-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.file-list .file-list-empty {
+  font-style: italic;
+}
+
 .error {
   background: var(--error-bg);
   color: var(--error);

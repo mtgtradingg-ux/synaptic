@@ -136,6 +136,11 @@
         <p class="muted" id="add-content-subject-name"></p>
         <p class="muted small">Función Premium — igual que en la app.</p>
 
+        <div class="field">
+          <span class="field-label">Archivos que ya tiene esta asignatura</span>
+          <ul id="add-content-existing-files" class="file-list"></ul>
+        </div>
+
         <label>
           Días a añadir
           <input type="number" id="add-content-days" min="1" max="90" value="30" required />
@@ -144,6 +149,7 @@
         <div class="field">
           <span class="field-label">Apuntes nuevos (PDF o TXT)</span>
           <input type="file" id="add-content-files" accept=".pdf,.txt" multiple required />
+          <p id="add-content-duplicate-warning" class="status error" hidden></p>
         </div>
 
         <button type="submit" class="btn btn-primary" id="add-content-submit">Añadir contenido</button>

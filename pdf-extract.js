@@ -49,3 +49,19 @@ async function extractAllText(files) {
   }
   return { text: buffer, failed };
 }
+
+// Recupera la lista de nombres de archivo ya metidos en un source_text
+// (el de subjects o el de cualquier subject_content_batches), leyendo los
+// encabezados "===== nombre =====" que escribe extractAllText — así la
+// web puede mostrar qué archivos ya tiene una asignatura sin necesitar
+// guardarlos aparte en ningún sitio.
+function extractFileNamesFromText(text) {
+  if (!text) return [];
+  const names = [];
+  const re = /^===== (.+) =====$/gm;
+  let match;
+  while ((match = re.exec(text)) !== null) {
+    names.push(match[1]);
+  }
+  return names;
+}

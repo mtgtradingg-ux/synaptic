@@ -329,15 +329,69 @@ function detectLanguageFallback() {
 // ---------- Añadir contenido ----------
 
 let addContentSubjectId = null;
+let existingFileNames = [];
 
-function openAddContent(subject) {
+async function openAddContent(subject) {
   addContentSubjectId = subject.id;
   document.getElementById('add-content-subject-name').textContent = subject.name;
   document.getElementById('add-content-form').reset();
   document.getElementById('add-content-days').value = 30;
   setStatus('add-content-status', '', null);
+  document.getElementById('add-content-duplicate-warning').hidden = true;
   showView('view-add-content');
+
+  const listEl = document.getElementById('add-content-existing-files');
+  listEl.innerHTML = '<li class="file-list-empty">Cargando…</li>';
+  existingFileNames = await loadExistingFileNames(subject.id);
+  renderExistingFiles();
 }
+
+// Reconstruye qué archivos tiene ya una asignatura leyendo los encabezados
+// "===== nombre =====" del source_text original y de cada lote añadido
+// después (subject_content_batches) — no hay ninguna tabla que guarde los
+// nombres por separado, así que se extraen del propio texto guardado.
+async function loadExistingFileNames(subjectId) {
+  const [{ data: subjectRow }, { data: batchRows }] = await Promise.all([
+    sb.from('subjects').select('source_text').eq('id', subjectId).maybeSingle(),
+    sb.from('subject_content_batches').select('source_text').eq('subject_id', subjectId),
+  ]);
+
+  const names = extractFileNamesFromText(subjectRow?.source_text);
+  for (const batch of batchRows || []) {
+    names.push(...extractFileNamesFromText(batch.source_text));
+  }
+  return names;
+}
+
+function renderExistingFiles() {
+  const listEl = document.getElementById('add-content-existing-files');
+  listEl.innerHTML = '';
+  if (existingFileNames.length === 0) {
+    listEl.innerHTML = '<li class="file-list-empty">Todavía no hay archivos.</li>';
+    return;
+  }
+  for (const name of existingFileNames) {
+    const li = document.createElement('li');
+    li.innerHTML = `<span data-lucide="file-check"></span> ${escapeHtml(name)}`;
+    listEl.appendChild(li);
+  }
+  renderIcons();
+}
+
+// Avisa si alguno de los archivos que se acaban de elegir para subir
+// coincide (por nombre) con uno que la asignatura ya tiene, para no
+// duplicar apuntes sin darse cuenta.
+document.getElementById('add-content-files').addEventListener('change', (e) => {
+  const warningEl = document.getElementById('add-content-duplicate-warning');
+  const selected = Array.from(e.target.files).map((f) => f.name);
+  const duplicates = selected.filter((name) => existingFileNames.includes(name));
+  if (duplicates.length > 0) {
+    warningEl.textContent = `Ya subiste antes: ${duplicates.join(', ')}. Si continúas, ese contenido se duplicará.`;
+    warningEl.hidden = false;
+  } else {
+    warningEl.hidden = true;
+  }
+});
 
 const ADD_CONTENT_ERRORS = {
   missing_source_text: 'No se pudo extraer texto de los archivos.',
