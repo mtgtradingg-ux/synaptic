@@ -335,15 +335,38 @@ async function openAddContent(subject) {
   addContentSubjectId = subject.id;
   document.getElementById('add-content-subject-name').textContent = subject.name;
   document.getElementById('add-content-form').reset();
-  document.getElementById('add-content-days').value = 30;
   setStatus('add-content-status', '', null);
   document.getElementById('add-content-duplicate-warning').hidden = true;
   showView('view-add-content');
 
   const listEl = document.getElementById('add-content-existing-files');
   listEl.innerHTML = '<li class="file-list-empty">Cargando…</li>';
-  existingFileNames = await loadExistingFileNames(subject.id);
+  const remainingEl = document.getElementById('add-content-remaining-days');
+  remainingEl.textContent = 'Calculando días restantes…';
+
+  const [names] = await Promise.all([
+    loadExistingFileNames(subject.id),
+    renderRemainingDays(subject),
+  ]);
+  existingFileNames = names;
   renderExistingFiles();
+}
+
+// El contenido nuevo ya no amplía el plan — se reparte entre los días que
+// todavía no tienen lección generada (mismo criterio que el edge function:
+// count(lessons), no is_locked). Se muestra solo a título informativo; el
+// propio edge function es quien decide de verdad si cabe o no.
+async function renderRemainingDays(subject) {
+  const remainingEl = document.getElementById('add-content-remaining-days');
+  const { count } = await sb
+    .from('lessons')
+    .select('id', { count: 'exact', head: true })
+    .eq('subject_id', subject.id);
+  const total = subject.total_plan_days ?? 0;
+  const remaining = Math.max(total - (count ?? 0), 0);
+  remainingEl.textContent = remaining > 0
+    ? `Quedan ${remaining} de ${total} días sin generar — el contenido nuevo se repartirá entre ellos, sin alargar el plan.`
+    : `Ya se generaron los ${total} días de este plan; no se puede añadir más contenido sin estudiar primero para liberar días.`;
 }
 
 // Reconstruye qué archivos tiene ya una asignatura leyendo los encabezados
@@ -395,12 +418,13 @@ document.getElementById('add-content-files').addEventListener('change', (e) => {
 
 const ADD_CONTENT_ERRORS = {
   missing_source_text: 'No se pudo extraer texto de los archivos.',
-  invalid_day_count: 'El número de días debe estar entre 1 y 90.',
   unauthorized: 'Tu sesión ha caducado. Vuelve a iniciar sesión.',
   premium_required: 'Esta función requiere Premium, igual que en la app.',
   subject_not_found: 'No se encontró la asignatura.',
   generation_in_progress: 'La asignatura todavía está generando lecciones. Espera un poco y vuelve a intentarlo.',
-  plan_length_limit_reached: 'Esta asignatura ya alcanzó el máximo de días de plan.',
+  plan_fully_generated: 'Ya se generaron todos los días de este plan; no se puede añadir más contenido sin estudiar primero para liberar días.',
+  content_too_large_for_remaining_days: 'Hay demasiado contenido para los días que quedan sin generar. Prueba con menos archivos, o espera a tener más días libres.',
+  plan_changed_retry: 'La asignatura cambió mientras se procesaba. Vuelve a intentarlo.',
   add_content_failed: 'No se pudo añadir el contenido.',
 };
 
@@ -408,7 +432,6 @@ document.getElementById('add-content-form').addEventListener('submit', async (e)
   e.preventDefault();
   const submitBtn = document.getElementById('add-content-submit');
   const files = Array.from(document.getElementById('add-content-files').files);
-  const dayCount = parseInt(document.getElementById('add-content-days').value, 10);
 
   if (!addContentSubjectId || files.length === 0) return;
 
@@ -426,7 +449,7 @@ document.getElementById('add-content-form').addEventListener('submit', async (e)
     }
 
     const { data, error } = await sb.functions.invoke('add-subject-content', {
-      body: { subjectId: addContentSubjectId, sourceText: text, dayCount },
+      body: { subjectId: addContentSubjectId, sourceText: text },
     });
 
     if (error) {
