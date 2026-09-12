@@ -119,10 +119,16 @@ async function loadSubjects() {
   const user = userData.user;
   if (!user) return;
 
+  // is_combined = true es el "Camino combinado" (Sesión general, ver
+  // supabase_schema_combined_path.sql) — una fila especial en `subjects`
+  // que la app usa internamente para mezclar un poco de cada asignatura,
+  // no algo que el usuario cree o gestione. La propia app la excluye igual
+  // (SubjectProvider.subjects en lib/models/subject.dart:215).
   const { data, error } = await sb
     .from('subjects')
     .select('id, name, color, icon, total_plan_days, language')
     .eq('user_id', user.id)
+    .eq('is_combined', false)
     .order('created_at', { ascending: true });
 
   const list = document.getElementById('subject-list');
