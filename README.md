@@ -1,7 +1,7 @@
 # estudio-web
 
 Web independiente para crear asignaturas y subir apuntes desde el ordenador,
-que aparecen en la app "estudio" exactamente igual que si se hubieran creado
+que aparecen en la app "Synaptic" exactamente igual que si se hubieran creado
 desde el móvil. No forma parte del repo de la app ni la modifica: habla
 directamente con el mismo proyecto de Supabase.
 

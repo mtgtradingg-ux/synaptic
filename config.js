@@ -1,4 +1,4 @@
-// Credenciales públicas del proyecto Supabase de "estudio" — la anon key
+// Credenciales públicas del proyecto Supabase de "Synaptic" — la anon key
 // está pensada para vivir en el cliente (protegida por RLS en la base de
 // datos); nunca pongas aquí la service role key.
 const SUPABASE_URL = 'https://uzkrksrwscnleahfvzve.supabase.co';
